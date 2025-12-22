@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-SG">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新加坡小学华文部首乐园 | Learning Radicals</title>
+    <style>
+        /* --- 基础样式 --- */
+        :root {
+            --primary-color: #FF8E72; /* 橙红色 */
+            --secondary-color: #4ECDC4; /* 蓝绿色 */
+            --bg-color: #F0F4F8;
+            --text-color: #333;
+            --card-bg: #fff;
+            --header-bg: #6c5ce7;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Microsoft YaHei', 'KaiTi', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- 标题区域 --- */
+        header {
+            background: linear-gradient(135deg, var(--header-bg), var(--secondary-color));
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.1em;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        /* --- 导航控制区 --- */
+        .controls {
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 100;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .action-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: transform 0.2s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+            background-color: #ff7b5a;
+        }
+
+        /* --- 内容区域 --- */
+        .main-content {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px 40px 20px;
+        }
+
+        /* --- 折叠章节样式 (Details & Summary) --- */
+        details {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+
+        details[open] {
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        summary {
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            list-style: none; /* 移除默认箭头 */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+            transition: background 0.3s;
+        }
+
+        summary:hover {
+            background-color: #f9f9f9;
+        }
+
+        /* 自定义折叠箭头 */
+        summary::after {
+            content: '▼';
+            font-size: 0.8em;
+            color: #999;
+            transition: transform 0.3s;
+        }
+
+        details[open] summary::after {
+            transform: rotate(180deg);
+            color: var(--secondary-color);
+        }
+
+        /* 网格布局 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background-color: #fafafa;
+            border-top: 1px solid #eee;
+        }
+
+        /* --- 卡片设计 --- */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+        }
+
+        /* 图片/Emoji 区域 + 动画 */
+        .visual-area {
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4em;
+            margin-bottom: 5px;
+            animation: float 3s ease-in-out infinite; 
+        }
+
+        /* 漂浮动画定义 */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .radical {
+            font-size: 3em;
+            color: var(--primary-color);
+            font-family: 'KaiTi', serif;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 5px 0 2px 0; /* 调整间距 */
+            color: #444;
+        }
+        
+        /* === NEW Pinyin Style === */
+        .pinyin-text {
+            font-size: 1em;
+            color: var(--secondary-color);
+            font-weight: bold;
+            margin-bottom: 5px; /* 确保拼音和含义有间隔 */
+        }
+
+        .meaning {
+            font-size: 0.9em;
+            color: #666;
+            background-color: #f0f0f0;
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🌟 汉字部首乐园</h1>
+        <p>Chinese Radicals Fun Park</p>
+    </header>
+
+    <div class="controls">
+        <button class="action-btn" onclick="toggleAll(true)">全部展开 (Expand All)</button>
+        <button class="action-btn" onclick="toggleAll(false)">全部折叠 (Collapse All)</button>
+    </div>
+
+    <div class="main-content" id="content-area">
+        </div>
+
+    <script>
+        // === 1. 扩充后的数据中心 (Full Data with Pinyin) ===
+        const syllabusData = {
+            "1A2": [
+                { char: "亻", name: "单人旁", pinyin: "dān rén páng", meaning: "Person (人)", img: "🚶" },
+                { char: "父", name: "父字头", pinyin: "fù zì tóu", meaning: "Father", img: "👨" },
+                { char: "女", name: "女字旁", pinyin: "nǚ zì páng", meaning: "Female/Girl", img: "👧" }
+            ],
+            "1A3": [
+                { char: "氵", name: "三点水", pinyin: "sān diǎn shuǐ", meaning: "Water", img: "💧" },
+                { char: "禾", name: "禾木旁", pinyin: "hé mù páng", meaning: "Crops/Grain", img: "🌾" },
+                { char: "口", name: "口字旁", pinyin: "kǒu zì páng", meaning: "Mouth", img: "👄" }
+            ],
+            "1A4": [
+                { char: "宀", name: "宝盖头", pinyin: "bǎo gài tóu", meaning: "Roof/House", img: "🏠" },
+                { char: "扌", name: "提手旁", pinyin: "tí shǒu páng", meaning: "Hand Action", img: "✋" }
+            ],
+            "1A5": [
+                { char: "艹", name: "草字头", pinyin: "cǎo zì tóu", meaning: "Grass/Plant", img: "🌿" },
+                { char: "阝", name: "左耳旁", pinyin: "zuǒ ěr páng", meaning: "Hill/Mound", img: "⛰️" }, // 土山
+                { char: "耂", name: "老字头", pinyin: "lǎo zì tóu", meaning: "Old/Elder", img: "👴" },
+                { char: "王", name: "王字旁", pinyin: "wáng zì páng", meaning: "Jade/King", img: "👑" } // 斜玉旁
+            ],
+            "1A6": [
+                { char: "⺮", name: "竹字头", pinyin: "zhú zì tóu", meaning: "Bamboo", img: "🎋" }
+            ],
+            "1A8": [
+                { char: "⻊", name: "足字旁", pinyin: "zú zì páng", meaning: "Foot", img: "🦶" }
+            ],
+            "1A9": [
+                { char: "夂", name: "折文", pinyin: "zhé wén", meaning: "Walk/Action", img: "🚶‍♂️" },
+                { char: "米", name: "米字旁", pinyin: "mǐ zì páng", meaning: "Rice", img: "🍚" },
+                { char: "灬", name: "四点底", pinyin: "sì diǎn dǐ", meaning: "Fire/Heat", img: "🔥" },
+                { char: "讠", name: "言字旁", pinyin: "yán zì páng", meaning: "Speech", img: "💬" }
+            ],
+            "1A10": [
+                { char: "土", name: "提土旁", pinyin: "tí tǔ páng", meaning: "Earth/Soil", img: "🌱" },
+                { char: "又", name: "又字旁", pinyin: "yòu zì páng", meaning: "Right Hand/Again", img: "🔁" }
+            ],
+
+            "1B11": [
+                { char: "辶", name: "走之底", pinyin: "zǒu zhī dǐ", meaning: "Walk/Movement", img: "🚶" },
+                { char: "冂", name: "同字框", pinyin: "tóng zì kuàng", meaning: "Border/Open Country", img: "🖼️" },
+                { char: "⺍", name: "学字头", pinyin: "xué zì tóu", meaning: "Study/School", img: "🏫" }
+            ],
+            "1B12": [
+                { char: "饣", name: "食字旁", pinyin: "shí zì páng", meaning: "Food", img: "🍔" },
+                { char: "犭", name: "反犬旁", pinyin: "fǎn quǎn páng", meaning: "Animal/Beast", img: "🐶" }
+            ],
+            "1B13": [
+                { char: "刂", name: "立刀旁", pinyin: "lì dāo páng", meaning: "Knife/Cut", img: "🔪" },
+                { char: "月", name: "月字旁", pinyin: "yuè zì páng", meaning: "Flesh/Body", img: "💪" },
+                { char: "攵", name: "反文旁", pinyin: "fǎn wén páng", meaning: "Beat/Action", img: "🔨" },
+                { char: "冫", name: "两点水", pinyin: "liǎng diǎn shuǐ", meaning: "Ice/Cold", img: "🧊" },
+                { char: "彳", name: "双人旁", pinyin: "shuāng rén páng", meaning: "Step/Walk", img: "👣" }
+            ],
+            "1B14": [
+                { char: "衤", name: "衣字旁", pinyin: "yī zì páng", meaning: "Clothing", img: "👕" },
+                { char: "阝", name: "右耳旁", pinyin: "yòu ěr páng", meaning: "City/Town", img: "🏙️" }, 
+                { char: "纟", name: "绞丝旁", pinyin: "jiǎo sī páng", meaning: "Silk/Thread", img: "🧵" },
+                { char: "忄", name: "竖心旁", pinyin: "shù xīn páng", meaning: "Heart/Emotion", img: "❤️" }
+            ],
+            "1B15": [
+                { char: "囗", name: "大口框", pinyin: "dà kǒu kuàng", meaning: "Enclosure", img: "📦" }
+            ],
+            "1B16": [
+                { char: "木", name: "木字旁", pinyin: "mù zì páng", meaning: "Tree/Wood", img: "🌳" },
+                { char: "冖", name: "秃宝盖", pinyin: "tū bǎo gài", meaning: "Cover", img: "🧢" }
+            ],
+            "1B17": [
+                { char: "日", name: "日字旁", pinyin: "rì zì páng", meaning: "Sun/Time", img: "☀️" },
+                { char: "礻", name: "示字旁", pinyin: "shì zì páng", meaning: "Ritual/Spirit", img: "🙏" }
+            ],
+            "1B18": [
+                { char: "目", name: "目字旁", pinyin: "mù zì páng", meaning: "Eye", img: "👁️" },
+                { char: "牜", name: "牛字旁", pinyin: "niú zì páng", meaning: "Cow", img: "🐮" },
+                { char: "立", name: "立字旁", pinyin: "lì zì páng", meaning: "Stand", img: "🧍" },
+                { char: "子", name: "子字旁", pinyin: "zǐ zì páng", meaning: "Child", img: "👶" }
+            ],
+            "1B19": [
+                { char: "⺌", name: "常字头", pinyin: "cháng zì tóu", meaning: "Small/Top", img: "✨" }
+            ],
+            "2A2": [
+                { char: "贝", name: "贝字旁", pinyin: "bèi zì páng", meaning: "Shell/Money", img: "🐚" }
+            ],
+            "2A3": [
+                { char: "石", name: "石字旁", pinyin: "shí zì páng", meaning: "Stone", img: "🪨" }
+            ],
+            "2A5": [
+                { char: "车", name: "车字旁", pinyin: "chē zì páng", meaning: "Car/Vehicle", img: "🚗" }
+            ],
+            "2A6": [
+                { char: "火", name: "火字旁", pinyin: "huǒ zì páng", meaning: "Fire", img: "🔥" }
+            ],
+            "2A8": [
+                { char: "疒", name: "病字头", pinyin: "bìng zì tóu", meaning: "Sickness", img: "😷" },
+                { char: "廴", name: "建字底", pinyin: "jiàn zì dǐ", meaning: "Stride/Move", img: "🏗️" }
+            ],
+            "2A9": [
+                { char: "钅", name: "金字旁", pinyin: "jīn zì páng", meaning: "Gold/Metal", img: "🥇" }
+            ],
+            "2B11": [
+                { char: "舟", name: "舟字旁", pinyin: "zhōu zì páng", meaning: "Boat", img: "🛶" }
+            ],
+            "2B13": [
+                { char: "耳", name: "耳字旁", pinyin: "ěr zì páng", meaning: "Ear", img: "👂" }
+            ],
+            "2B16": [
+                { char: "皿", name: "皿字底", pinyin: "mǐn zì dǐ", meaning: "Dish/Vessel", img: "🍽️" }
+            ],
+            "2B17": [
+                { char: "身", name: "身字旁", pinyin: "shēn zì páng", meaning: "Body", img: "🧍‍♂️" }
+            ]
+        };
+
+        const contentArea = document.getElementById('content-area');
+
+        // === 2. 渲染函数 (Render) - 包含 Pinyin ===
+        function render() {
+            contentArea.innerHTML = ''; 
+
+            for (const [section, radicals] of Object.entries(syllabusData)) {
+                const details = document.createElement('details');
+                if(section.startsWith("1A2")) details.open = true;
+
+                const summary = document.createElement('summary');
+                summary.innerHTML = `<span>📖 Chapter ${section}</span>`;
+                details.appendChild(summary);
+
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'grid';
+
+                radicals.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    let imageHtml = item.img;
+                    if(item.img.includes('.png') || item.img.includes('.jpg')) {
+                        imageHtml = `<img src="${item.img}" alt="${item.meaning}">`;
+                    }
+
+                    // --- 关键修改：新增了 item.pinyin 的显示 ---
+                    card.innerHTML = `
+                        <div class="visual-area">${imageHtml}</div>
+                        <div class="radical">${item.char}</div>
+                        <div class="name">${item.name}</div>
+                        <div class="pinyin-text">${item.pinyin}</div> 
+                        <div class="meaning">${item.meaning}</div>
+                    `;
+                    // --------------------------------------------------
+                    gridDiv.appendChild(card);
+                });
+
+                details.appendChild(gridDiv);
+                contentArea.appendChild(details);
+            }
+        }
+
+        // === 3. 全局控制函数 ===
+        function toggleAll(shouldOpen) {
+            const allDetails = document.querySelectorAll('details');
+            allDetails.forEach(detail => {
+                if (shouldOpen) {
+                    detail.setAttribute('open', 'true');
+                } else {
+                    detail.removeAttribute('open');
+                }
+            });
+        }
+
+        // 启动渲染
+        render();
+
+    </script>
+</body>
+</html>
