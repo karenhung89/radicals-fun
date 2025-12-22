@@ -1,771 +1,549 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { BookOpen, Search, Volume2, RotateCw, Trophy, ChevronDown, PenTool, X, Eraser, Maximize2, Minimize2, Brain } from 'lucide-react';
-
-// --- Curriculum Data ---
-const SYLLABUS_DATA = {
-  "1A": {
-    "1A2": [
-      { char: "亻", name: "单人旁", pinyin: "dān rén páng", meaning: "Person", img: "🚶", examples: ["你 (You)", "他 (He)", "做 (Do)"] },
-      { char: "父", name: "父字头", pinyin: "fù zì tóu", meaning: "Father", img: "👨", examples: ["爸 (Dad)", "爷 (Grandpa)"] },
-      { char: "女", name: "女字旁", pinyin: "nǚ zì páng", meaning: "Female", img: "👧", examples: ["妈 (Mom)", "姐 (Sister)", "奶 (Grandma)"] }
-    ],
-    "1A3": [
-      { char: "氵", name: "三点水", pinyin: "sān diǎn shuǐ", meaning: "Water", img: "💧", examples: ["江 (River)", "海 (Sea)", "洗 (Wash)"] },
-      { char: "禾", name: "禾木旁", pinyin: "hé mù páng", meaning: "Crops", img: "🌾", examples: ["秋 (Autumn)", "种 (Plant)"] },
-      { char: "口", name: "口字旁", pinyin: "kǒu zì páng", meaning: "Mouth", img: "👄", examples: ["吃 (Eat)", "喝 (Drink)", "唱 (Sing)"] }
-    ],
-    "1A4": [
-      { char: "宀", name: "宝盖头", pinyin: "bǎo gài tóu", meaning: "Roof/House", img: "🏠", examples: ["家 (Home)", "安 (Safe)"] },
-      { char: "扌", name: "提手旁", pinyin: "tí shǒu páng", meaning: "Hand Action", img: "✋", examples: ["打 (Hit)", "找 (Find)", "拍 (Clap)"] }
-    ],
-    "1A5": [
-      { char: "艹", name: "草字头", pinyin: "cǎo zì tóu", meaning: "Grass", img: "🌿", examples: ["花 (Flower)", "草 (Grass)"] },
-      { char: "阝", name: "左耳旁", pinyin: "zuǒ ěr páng", meaning: "Hill/Mound", img: "⛰️", examples: ["阳 (Sun)", "阴 (Yin)"] },
-      { char: "耂", name: "老字头", pinyin: "lǎo zì tóu", meaning: "Old", img: "👴", examples: ["老 (Old)", "考 (Test)"] },
-      { char: "王", name: "王字旁", pinyin: "wáng zì páng", meaning: "Jade/King", img: "👑", examples: ["球 (Ball)", "玩 (Play)"] }
-    ],
-    "1A6": [
-      { char: "⺮", name: "竹字头", pinyin: "zhú zì tóu", meaning: "Bamboo", img: "🎋", examples: ["笔 (Pen)", "笑 (Laugh)"] }
-    ],
-    "1A8": [
-      { char: "⻊", name: "足字旁", pinyin: "zú zì páng", meaning: "Foot", img: "🦶", examples: ["跑 (Run)", "跳 (Jump)", "踢 (Kick)"] }
-    ],
-    "1A9": [
-      { char: "夂", name: "折文", pinyin: "zhé wén", meaning: "Walk", img: "🚶‍♂️", examples: ["冬 (Winter)", "条 (Strip)"] },
-      { char: "米", name: "米字旁", pinyin: "mǐ zì páng", meaning: "Rice", img: "🍚", examples: ["饭 (Rice)", "糖 (Candy)"] },
-      { char: "灬", name: "四点底", pinyin: "sì diǎn dǐ", meaning: "Fire/Heat", img: "🔥", examples: ["热 (Hot)", "煮 (Boil)"] },
-      { char: "讠", name: "言字旁", pinyin: "yán zì páng", meaning: "Speech", img: "💬", examples: ["说 (Speak)", "语 (Language)"] }
-    ],
-    "1A10": [
-      { char: "土", name: "提土旁", pinyin: "tí tǔ páng", meaning: "Earth", img: "🌱", examples: ["地 (Ground)", "场 (Field)"] },
-      { char: "又", name: "又字旁", pinyin: "yòu zì páng", meaning: "Again/Right Hand", img: "🔁", examples: ["对 (Correct)", "双 (Double)"] }
-    ]
-  },
-  "1B": {
-    "1B11": [
-      { char: "辶", name: "走之底", pinyin: "zǒu zhī dǐ", meaning: "Walk/Move", img: "🚶", examples: ["这 (This)", "边 (Side)", "进 (Enter)"] },
-      { char: "冂", name: "同字框", pinyin: "tóng zì kuàng", meaning: "Border", img: "🖼️", examples: ["网 (Net)", "冈 (Ridge)"] },
-      { char: "⺍", name: "学字头", pinyin: "xué zì tóu", meaning: "Study", img: "🏫", examples: ["学 (Study)", "觉 (Feel)"] }
-    ],
-    "1B12": [
-      { char: "饣", name: "食字旁", pinyin: "shí zì páng", meaning: "Food", img: "🍔", examples: ["饭 (Rice)", "饿 (Hungry)"] },
-      { char: "犭", name: "反犬旁", pinyin: "fǎn quǎn páng", meaning: "Animal", img: "🐶", examples: ["狗 (Dog)", "猫 (Cat)", "猪 (Pig)"] }
-    ],
-    "1B13": [
-      { char: "刂", name: "立刀旁", pinyin: "lì dāo páng", meaning: "Knife", img: "🔪", examples: ["到 (Arrive)", "别 (Other)"] },
-      { char: "月", name: "月字旁", pinyin: "yuè zì páng", meaning: "Flesh/Body", img: "💪", examples: ["肚 (Belly)", "胖 (Fat)", "腿 (Leg)"] },
-      { char: "攵", name: "反文旁", pinyin: "fǎn wén páng", meaning: "Action/Beat", img: "🔨", examples: ["放 (Put)", "收 (Collect)"] },
-      { char: "冫", name: "两点水", pinyin: "liǎng diǎn shuǐ", meaning: "Ice/Cold", img: "🧊", examples: ["冷 (Cold)", "冰 (Ice)"] },
-      { char: "彳", name: "双人旁", pinyin: "shuāng rén páng", meaning: "Step/Walk", img: "👣", examples: ["很 (Very)", "行 (Walk/OK)"] }
-    ],
-    "1B14": [
-      { char: "衤", name: "衣字旁", pinyin: "yī zì páng", meaning: "Clothing", img: "👕", examples: ["裤 (Pants)", "裙 (Skirt)"] },
-      { char: "阝", name: "右耳旁", pinyin: "yòu ěr páng", meaning: "City/Place", img: "🏙️", examples: ["那 (That)", "都 (All)"] }, 
-      { char: "纟", name: "绞丝旁", pinyin: "jiǎo sī páng", meaning: "Silk/Thread", img: "🧵", examples: ["红 (Red)", "绿 (Green)"] },
-      { char: "忄", name: "竖心旁", pinyin: "shù xīn páng", meaning: "Heart/Emotion", img: "❤️", examples: ["快 (Fast)", "慢 (Slow)", "怕 (Scared)"] }
-    ],
-    "1B15": [
-      { char: "囗", name: "大口框", pinyin: "dà kǒu kuàng", meaning: "Enclosure", img: "📦", examples: ["国 (Country)", "园 (Garden)"] }
-    ],
-    "1B16": [
-      { char: "木", name: "木字旁", pinyin: "mù zì páng", meaning: "Tree/Wood", img: "🌳", examples: ["树 (Tree)", "林 (Forest)"] },
-      { char: "冖", name: "秃宝盖", pinyin: "tū bǎo gài", meaning: "Cover", img: "🧢", examples: ["写 (Write)", "军 (Army)"] }
-    ],
-    "1B17": [
-      { char: "日", name: "日字旁", pinyin: "rì zì páng", meaning: "Sun/Time", img: "☀️", examples: ["明 (Bright)", "晚 (Night)"] },
-      { char: "礻", name: "示字旁", pinyin: "shì zì páng", meaning: "Ritual", img: "🙏", examples: ["礼 (Gift)", "祝 (Wish)"] }
-    ],
-    "1B18": [
-      { char: "目", name: "目字旁", pinyin: "mù zì páng", meaning: "Eye", img: "👁️", examples: ["眼 (Eye)", "睛 (Eye)"] },
-      { char: "牜", name: "牛字旁", pinyin: "niú zì páng", meaning: "Cow", img: "🐮", examples: ["物 (Object)", "特 (Special)"] },
-      { char: "立", name: "立字旁", pinyin: "lì zì páng", meaning: "Stand", img: "🧍", examples: ["站 (Stand)", "亲 (Dear)"] },
-      { char: "子", name: "子字旁", pinyin: "zǐ zì páng", meaning: "Child", img: "👶", examples: ["孩 (Child)", "孙 (Grandchild)"] }
-    ],
-    "1B19": [
-      { char: "⺌", name: "常字头", pinyin: "cháng zì tóu", meaning: "Small/Top", img: "✨", examples: ["常 (Often)", "当 (When)"] }
-    ]
-  },
-  "2A": {
-    "2A2": [
-      { char: "贝", name: "贝字旁", pinyin: "bèi zì páng", meaning: "Shell/Money", img: "🐚", examples: ["贵 (Expensive)", "财 (Wealth)"] }
-    ],
-    "2A3": [
-      { char: "石", name: "石字旁", pinyin: "shí zì páng", meaning: "Stone", img: "🪨", examples: ["破 (Broken)", "硬 (Hard)"] }
-    ],
-    "2A5": [
-      { char: "车", name: "车字旁", pinyin: "chē zì páng", meaning: "Car", img: "🚗", examples: ["轮 (Wheel)", "轻 (Light)"] }
-    ],
-    "2A6": [
-      { char: "火", name: "火字旁", pinyin: "huǒ zì páng", meaning: "Fire", img: "🔥", examples: ["灯 (Lamp)", "烧 (Burn)"] }
-    ],
-    "2A8": [
-      { char: "疒", name: "病字头", pinyin: "bìng zì tóu", meaning: "Sickness", img: "😷", examples: ["病 (Sick)", "痛 (Pain)"] },
-      { char: "廴", name: "建字底", pinyin: "jiàn zì dǐ", meaning: "Stride", img: "🏗️", examples: ["建 (Build)", "延 (Delay)"] }
-    ],
-    "2A9": [
-      { char: "钅", name: "金字旁", pinyin: "jīn zì páng", meaning: "Gold/Metal", img: "🥇", examples: ["钟 (Clock)", "钱 (Money)"] }
-    ]
-  },
-  "2B": {
-    "2B11": [
-      { char: "舟", name: "舟字旁", pinyin: "zhōu zì páng", meaning: "Boat", img: "🛶", examples: ["船 (Boat)", "航 (Sail)"] }
-    ],
-    "2B13": [
-      { char: "耳", name: "耳字旁", pinyin: "ěr zì páng", meaning: "Ear", img: "👂", examples: ["聪 (Smart)", "闻 (Smell/Hear)"] }
-    ],
-    "2B16": [
-      { char: "皿", name: "皿字底", pinyin: "mǐn zì dǐ", meaning: "Dish", img: "🍽️", examples: ["盆 (Basin)", "盘 (Plate)"] }
-    ],
-    "2B17": [
-      { char: "身", name: "身字旁", pinyin: "shēn zì páng", meaning: "Body", img: "🧍‍♂️", examples: ["谢 (Thank)", "躺 (Lie down)"] }
-    ]
-  }
-};
-
-// --- Proposal: Writing Practice Modal ---
-const WritingModal = ({ char, isOpen, onClose }) => {
-  const canvasRef = useRef(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-
-  useEffect(() => {
-    if (isOpen && canvasRef.current) {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      
-      // Fix: Get exact display size for 1:1 pixel mapping
-      const rect = canvas.getBoundingClientRect();
-      canvas.width = rect.width;
-      canvas.height = rect.height;
-      
-      // Style
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.strokeStyle = '#2d3436';
-      ctx.lineWidth = 8;
-      
-      // Draw Grid (Rice Grid 米字格)
-      drawGrid(ctx, canvas.width, canvas.height);
-    }
-  }, [isOpen]);
-
-  const drawGrid = (ctx, w, h) => {
-    ctx.save();
-    ctx.strokeStyle = '#e2e8f0';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chinese Radicals Fun Park</title>
     
-    // Diagonal lines
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(w, h);
-    ctx.moveTo(w, 0);
-    ctx.lineTo(0, h);
-    ctx.stroke();
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    // Center lines
-    ctx.beginPath();
-    ctx.moveTo(w/2, 0);
-    ctx.lineTo(w/2, h);
-    ctx.moveTo(0, h/2);
-    ctx.lineTo(w, h/2);
-    ctx.stroke();
+    <!-- Load React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     
-    // Border
-    ctx.setLineDash([]);
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = '#FF8E72';
-    ctx.strokeRect(0, 0, w, h);
-    
-    ctx.restore();
-  };
+    <!-- Load Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  // Fix: Improved coordinate calculation relative to viewport
-  const getCoordinates = (event) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return { x: 0, y: 0 };
+    <!-- Custom Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
 
-    const rect = canvas.getBoundingClientRect();
-    let clientX, clientY;
+    <style>
+        body { background-color: #F0F4F8; font-family: 'Noto Sans SC', sans-serif; overflow-x: hidden; }
+        .font-kaiti { font-family: 'ZCOOL XiaoWei', 'KaiTi', serif; }
+        .perspective { perspective: 1000px; }
+        .preserve-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+        @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .animate-bounce-slow { animation: bounce-slow 3s infinite ease-in-out; }
+        .animate-fadeIn { animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
-    if (event.touches && event.touches[0]) {
-      // Touch event
-      clientX = event.touches[0].clientX;
-      clientY = event.touches[0].clientY;
-    } else {
-      // Mouse event
-      clientX = event.clientX;
-      clientY = event.clientY;
-    }
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-    return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
-    };
-  };
+        // --- ICON COMPONENTS ---
+        const Icons = {
+            BookOpen: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>,
+            Search: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
+            Volume2: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>,
+            RotateCw: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>,
+            Trophy: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>,
+            ChevronDown: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m6 9 6 6 6-6"/></svg>,
+            PenTool: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>,
+            X: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>,
+            Eraser: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>,
+            Maximize2: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>,
+            Minimize2: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" x2="21" y1="10" y2="3"/><line x1="3" x2="10" y1="21" y2="14"/></svg>,
+            Brain: (props) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>
+        };
 
-  const startDrawing = (e) => {
-    // Prevent scrolling when drawing
-    if (e.type === 'touchstart') e.preventDefault();
-    
-    const { x, y } = getCoordinates(e); // Pass the synthetic event directly
-    const ctx = canvasRef.current.getContext('2d');
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    setIsDrawing(true);
-  };
+        // --- DATA ---
+        const SYLLABUS_DATA = {
+            "1A": {
+                "1A2": [
+                { char: "亻", name: "单人旁", pinyin: "dān rén páng", meaning: "Person", img: "🚶", examples: ["你 (You)", "他 (He)", "做 (Do)"] },
+                { char: "父", name: "父字头", pinyin: "fù zì tóu", meaning: "Father", img: "👨", examples: ["爸 (Dad)", "爷 (Grandpa)"] },
+                { char: "女", name: "女字旁", pinyin: "nǚ zì páng", meaning: "Female", img: "👧", examples: ["妈 (Mom)", "姐 (Sister)", "奶 (Grandma)"] }
+                ],
+                "1A3": [
+                { char: "氵", name: "三点水", pinyin: "sān diǎn shuǐ", meaning: "Water", img: "💧", examples: ["江 (River)", "海 (Sea)", "洗 (Wash)"] },
+                { char: "禾", name: "禾木旁", pinyin: "hé mù páng", meaning: "Crops", img: "🌾", examples: ["秋 (Autumn)", "种 (Plant)"] },
+                { char: "口", name: "口字旁", pinyin: "kǒu zì páng", meaning: "Mouth", img: "👄", examples: ["吃 (Eat)", "喝 (Drink)", "唱 (Sing)"] }
+                ],
+                "1A4": [
+                { char: "宀", name: "宝盖头", pinyin: "bǎo gài tóu", meaning: "Roof/House", img: "🏠", examples: ["家 (Home)", "安 (Safe)"] },
+                { char: "扌", name: "提手旁", pinyin: "tí shǒu páng", meaning: "Hand Action", img: "✋", examples: ["打 (Hit)", "找 (Find)", "拍 (Clap)"] }
+                ],
+                "1A5": [
+                { char: "艹", name: "草字头", pinyin: "cǎo zì tóu", meaning: "Grass", img: "🌿", examples: ["花 (Flower)", "草 (Grass)"] },
+                { char: "阝", name: "左耳旁", pinyin: "zuǒ ěr páng", meaning: "Hill/Mound", img: "⛰️", examples: ["阳 (Sun)", "阴 (Yin)"] },
+                { char: "耂", name: "老字头", pinyin: "lǎo zì tóu", meaning: "Old", img: "👴", examples: ["老 (Old)", "考 (Test)"] },
+                { char: "王", name: "王字旁", pinyin: "wáng zì páng", meaning: "Jade/King", img: "👑", examples: ["球 (Ball)", "玩 (Play)"] }
+                ],
+                "1A6": [
+                { char: "⺮", name: "竹字头", pinyin: "zhú zì tóu", meaning: "Bamboo", img: "🎋", examples: ["笔 (Pen)", "笑 (Laugh)"] }
+                ],
+                "1A8": [
+                { char: "⻊", name: "足字旁", pinyin: "zú zì páng", meaning: "Foot", img: "🦶", examples: ["跑 (Run)", "跳 (Jump)", "踢 (Kick)"] }
+                ],
+                "1A9": [
+                { char: "夂", name: "折文", pinyin: "zhé wén", meaning: "Walk", img: "🚶‍♂️", examples: ["冬 (Winter)", "条 (Strip)"] },
+                { char: "米", name: "米字旁", pinyin: "mǐ zì páng", meaning: "Rice", img: "🍚", examples: ["饭 (Rice)", "糖 (Candy)"] },
+                { char: "灬", name: "四点底", pinyin: "sì diǎn dǐ", meaning: "Fire/Heat", img: "🔥", examples: ["热 (Hot)", "煮 (Boil)"] },
+                { char: "讠", name: "言字旁", pinyin: "yán zì páng", meaning: "Speech", img: "💬", examples: ["说 (Speak)", "语 (Language)"] }
+                ],
+                "1A10": [
+                { char: "土", name: "提土旁", pinyin: "tí tǔ páng", meaning: "Earth", img: "🌱", examples: ["地 (Ground)", "场 (Field)"] },
+                { char: "又", name: "又字旁", pinyin: "yòu zì páng", meaning: "Again/Right Hand", img: "🔁", examples: ["对 (Correct)", "双 (Double)"] }
+                ]
+            },
+            "1B": {
+                "1B11": [
+                { char: "辶", name: "走之底", pinyin: "zǒu zhī dǐ", meaning: "Walk/Move", img: "🚶", examples: ["这 (This)", "边 (Side)", "进 (Enter)"] },
+                { char: "冂", name: "同字框", pinyin: "tóng zì kuàng", meaning: "Border", img: "🖼️", examples: ["网 (Net)", "冈 (Ridge)"] },
+                { char: "⺍", name: "学字头", pinyin: "xué zì tóu", meaning: "Study", img: "🏫", examples: ["学 (Study)", "觉 (Feel)"] }
+                ],
+                "1B12": [
+                { char: "饣", name: "食字旁", pinyin: "shí zì páng", meaning: "Food", img: "🍔", examples: ["饭 (Rice)", "饿 (Hungry)"] },
+                { char: "犭", name: "反犬旁", pinyin: "fǎn quǎn páng", meaning: "Animal", img: "🐶", examples: ["狗 (Dog)", "猫 (Cat)", "猪 (Pig)"] }
+                ],
+                "1B13": [
+                { char: "刂", name: "立刀旁", pinyin: "lì dāo páng", meaning: "Knife", img: "🔪", examples: ["到 (Arrive)", "别 (Other)"] },
+                { char: "月", name: "月字旁", pinyin: "yuè zì páng", meaning: "Flesh/Body", img: "💪", examples: ["肚 (Belly)", "胖 (Fat)", "腿 (Leg)"] },
+                { char: "攵", name: "反文旁", pinyin: "fǎn wén páng", meaning: "Action/Beat", img: "🔨", examples: ["放 (Put)", "收 (Collect)"] },
+                { char: "冫", name: "两点水", pinyin: "liǎng diǎn shuǐ", meaning: "Ice/Cold", img: "🧊", examples: ["冷 (Cold)", "冰 (Ice)"] },
+                { char: "彳", name: "双人旁", pinyin: "shuāng rén páng", meaning: "Step/Walk", img: "👣", examples: ["很 (Very)", "行 (Walk/OK)"] }
+                ],
+                "1B14": [
+                { char: "衤", name: "衣字旁", pinyin: "yī zì páng", meaning: "Clothing", img: "👕", examples: ["裤 (Pants)", "裙 (Skirt)"] },
+                { char: "阝", name: "右耳旁", pinyin: "yòu ěr páng", meaning: "City/Place", img: "🏙️", examples: ["那 (That)", "都 (All)"] }, 
+                { char: "纟", name: "绞丝旁", pinyin: "jiǎo sī páng", meaning: "Silk/Thread", img: "🧵", examples: ["红 (Red)", "绿 (Green)"] },
+                { char: "忄", name: "竖心旁", pinyin: "shù xīn páng", meaning: "Heart/Emotion", img: "❤️", examples: ["快 (Fast)", "慢 (Slow)", "怕 (Scared)"] }
+                ],
+                "1B15": [
+                { char: "囗", name: "大口框", pinyin: "dà kǒu kuàng", meaning: "Enclosure", img: "📦", examples: ["国 (Country)", "园 (Garden)"] }
+                ],
+                "1B16": [
+                { char: "木", name: "木字旁", pinyin: "mù zì páng", meaning: "Tree/Wood", img: "🌳", examples: ["树 (Tree)", "林 (Forest)"] },
+                { char: "冖", name: "秃宝盖", pinyin: "tū bǎo gài", meaning: "Cover", img: "🧢", examples: ["写 (Write)", "军 (Army)"] }
+                ],
+                "1B17": [
+                { char: "日", name: "日字旁", pinyin: "rì zì páng", meaning: "Sun/Time", img: "☀️", examples: ["明 (Bright)", "晚 (Night)"] },
+                { char: "礻", name: "示字旁", pinyin: "shì zì páng", meaning: "Ritual", img: "🙏", examples: ["礼 (Gift)", "祝 (Wish)"] }
+                ],
+                "1B18": [
+                { char: "目", name: "目字旁", pinyin: "mù zì páng", meaning: "Eye", img: "👁️", examples: ["眼 (Eye)", "睛 (Eye)"] },
+                { char: "牜", name: "牛字旁", pinyin: "niú zì páng", meaning: "Cow", img: "🐮", examples: ["物 (Object)", "特 (Special)"] },
+                { char: "立", name: "立字旁", pinyin: "lì zì páng", meaning: "Stand", img: "🧍", examples: ["站 (Stand)", "亲 (Dear)"] },
+                { char: "子", name: "子字旁", pinyin: "zǐ zì páng", meaning: "Child", img: "👶", examples: ["孩 (Child)", "孙 (Grandchild)"] }
+                ],
+                "1B19": [
+                { char: "⺌", name: "常字头", pinyin: "cháng zì tóu", meaning: "Small/Top", img: "✨", examples: ["常 (Often)", "当 (When)"] }
+                ]
+            },
+            "2A": {
+                "2A2": [
+                { char: "贝", name: "贝字旁", pinyin: "bèi zì páng", meaning: "Shell/Money", img: "🐚", examples: ["贵 (Expensive)", "财 (Wealth)"] }
+                ],
+                "2A3": [
+                { char: "石", name: "石字旁", pinyin: "shí zì páng", meaning: "Stone", img: "🪨", examples: ["破 (Broken)", "硬 (Hard)"] }
+                ],
+                "2A5": [
+                { char: "车", name: "车字旁", pinyin: "chē zì páng", meaning: "Car", img: "🚗", examples: ["轮 (Wheel)", "轻 (Light)"] }
+                ],
+                "2A6": [
+                { char: "火", name: "火字旁", pinyin: "huǒ zì páng", meaning: "Fire", img: "🔥", examples: ["灯 (Lamp)", "烧 (Burn)"] }
+                ],
+                "2A8": [
+                { char: "疒", name: "病字头", pinyin: "bìng zì tóu", meaning: "Sickness", img: "😷", examples: ["病 (Sick)", "痛 (Pain)"] },
+                { char: "廴", name: "建字底", pinyin: "jiàn zì dǐ", meaning: "Stride", img: "🏗️", examples: ["建 (Build)", "延 (Delay)"] }
+                ],
+                "2A9": [
+                { char: "钅", name: "金字旁", pinyin: "jīn zì páng", meaning: "Gold/Metal", img: "🥇", examples: ["钟 (Clock)", "钱 (Money)"] }
+                ]
+            },
+            "2B": {
+                "2B11": [
+                { char: "舟", name: "舟字旁", pinyin: "zhōu zì páng", meaning: "Boat", img: "🛶", examples: ["船 (Boat)", "航 (Sail)"] }
+                ],
+                "2B13": [
+                { char: "耳", name: "耳字旁", pinyin: "ěr zì páng", meaning: "Ear", img: "👂", examples: ["聪 (Smart)", "闻 (Smell/Hear)"] }
+                ],
+                "2B16": [
+                { char: "皿", name: "皿字底", pinyin: "mǐn zì dǐ", meaning: "Dish", img: "🍽️", examples: ["盆 (Basin)", "盘 (Plate)"] }
+                ],
+                "2B17": [
+                { char: "身", name: "身字旁", pinyin: "shēn zì páng", meaning: "Body", img: "🧍‍♂️", examples: ["谢 (Thank)", "躺 (Lie down)"] }
+                ]
+            }
+        };
 
-  const draw = (e) => {
-     // Prevent scrolling when drawing
-    if (e.type === 'touchmove') e.preventDefault();
+        // --- REACT COMPONENTS ---
 
-    if (!isDrawing) return;
-    const { x, y } = getCoordinates(e);
-    const ctx = canvasRef.current.getContext('2d');
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
+        // Writing Modal
+        const WritingModal = ({ char, isOpen, onClose }) => {
+            const canvasRef = useRef(null);
+            const [isDrawing, setIsDrawing] = useState(false);
 
-  const stopDrawing = () => {
-    if (canvasRef.current) {
-        const ctx = canvasRef.current.getContext('2d');
-        ctx.closePath();
-    }
-    setIsDrawing(false);
-  };
+            useEffect(() => {
+                if (isOpen && canvasRef.current) {
+                    const canvas = canvasRef.current;
+                    const ctx = canvas.getContext('2d');
+                    
+                    const rect = canvas.getBoundingClientRect();
+                    canvas.width = rect.width;
+                    canvas.height = rect.height;
+                    
+                    ctx.lineCap = 'round';
+                    ctx.lineJoin = 'round';
+                    ctx.strokeStyle = '#2d3436';
+                    ctx.lineWidth = 8;
+                    
+                    drawGrid(ctx, canvas.width, canvas.height);
+                }
+            }, [isOpen]);
 
-  const clearCanvas = () => {
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawGrid(ctx, canvas.width, canvas.height);
-  };
+            const drawGrid = (ctx, w, h) => {
+                ctx.save();
+                ctx.strokeStyle = '#e2e8f0';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                
+                ctx.beginPath();
+                ctx.moveTo(0, 0); ctx.lineTo(w, h);
+                ctx.moveTo(w, 0); ctx.lineTo(0, h);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h);
+                ctx.moveTo(0, h/2); ctx.lineTo(w, h/2);
+                ctx.stroke();
+                
+                ctx.setLineDash([]);
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#FF8E72';
+                ctx.strokeRect(0, 0, w, h);
+                
+                ctx.restore();
+            };
 
-  if (!isOpen) return null;
+            const getCoordinates = (event) => {
+                const canvas = canvasRef.current;
+                if (!canvas) return { x: 0, y: 0 };
+                const rect = canvas.getBoundingClientRect();
+                let clientX, clientY;
+                if (event.touches && event.touches[0]) {
+                    clientX = event.touches[0].clientX;
+                    clientY = event.touches[0].clientY;
+                } else {
+                    clientX = event.clientX;
+                    clientY = event.clientY;
+                }
+                return { x: clientX - rect.left, y: clientY - rect.top };
+            };
 
-  return (
-    <div 
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn"
-        onClick={onClose} // Click outside to close
-    >
-      <div 
-        className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 relative"
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
-      >
-        <button 
-          onClick={onClose}
-          className="absolute -top-3 -right-3 z-50 p-3 bg-red-100 rounded-full text-red-500 shadow-md hover:bg-red-500 hover:text-white transition-all transform hover:scale-110"
-        >
-          <X size={24} strokeWidth={3} />
-        </button>
+            const startDrawing = (e) => {
+                if (e.type === 'touchstart') e.preventDefault();
+                const { x, y } = getCoordinates(e);
+                const ctx = canvasRef.current.getContext('2d');
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                setIsDrawing(true);
+            };
 
-        <h3 className="text-2xl font-bold text-center mb-2 text-gray-700">Practice Writing</h3>
-        <p className="text-center text-gray-400 mb-6">Trace the radical: <span className="text-orange-500 font-kaiti text-2xl mx-1">{char}</span></p>
+            const draw = (e) => {
+                if (e.type === 'touchmove') e.preventDefault();
+                if (!isDrawing) return;
+                const { x, y } = getCoordinates(e);
+                const ctx = canvasRef.current.getContext('2d');
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            };
 
-        <div className="relative aspect-square w-full bg-orange-50/30 rounded-xl overflow-hidden cursor-crosshair touch-none select-none">
-          {/* Faint Background Character for Tracing */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-            <span className="font-kaiti text-[200px] text-gray-200 opacity-50 select-none">{char}</span>
-          </div>
+            const stopDrawing = () => {
+                if (canvasRef.current) {
+                    const ctx = canvasRef.current.getContext('2d');
+                    ctx.closePath();
+                }
+                setIsDrawing(false);
+            };
 
-          <canvas
-            ref={canvasRef}
-            className="w-full h-full relative z-10 touch-none"
-            onMouseDown={startDrawing}
-            onMouseMove={draw}
-            onMouseUp={stopDrawing}
-            onMouseLeave={stopDrawing}
-            onTouchStart={startDrawing}
-            onTouchMove={draw}
-            onTouchEnd={stopDrawing}
-          />
-        </div>
+            const clearCanvas = () => {
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawGrid(ctx, canvas.width, canvas.height);
+            };
 
-        <div className="flex justify-center mt-6">
-          <button 
-            onClick={clearCanvas}
-            className="flex items-center gap-2 px-6 py-2 bg-orange-100 text-orange-600 rounded-full font-bold hover:bg-orange-200 transition-colors"
-          >
-            <Eraser size={20} /> Clear Board
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
+            if (!isOpen) return null;
 
-const RadicalCard = ({ data, onSpeak, onOpenPractice }) => {
-  const [isFlipped, setIsFlipped] = useState(false);
-
-  return (
-    <div className="group perspective h-72 w-full cursor-pointer relative">
-      <div 
-        className={`relative h-full w-full transition-all duration-500 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`}
-        onClick={() => setIsFlipped(!isFlipped)}
-      >
-        
-        {/* Front Side */}
-        <div className="absolute inset-0 backface-hidden bg-white rounded-2xl shadow-lg border-2 border-orange-100 hover:border-orange-300 p-4 flex flex-col items-center justify-between overflow-hidden">
-          <div className="absolute top-0 right-0 p-2 opacity-50">
-            <RotateCw size={16} className="text-gray-400" />
-          </div>
-          
-          <div className="flex-1 flex flex-row items-center justify-center w-full gap-4 md:gap-8 px-2">
-            {/* Radical Character */}
-            <div className="text-7xl font-kaiti text-orange-500 font-bold drop-shadow-sm leading-none">
-              {data.char}
-            </div>
-            
-            {/* Divider */}
-            <div className="w-0.5 h-16 bg-orange-100 rounded-full"></div>
-
-            {/* Emoji/Image Container with Floating Animation */}
-            <div className="animate-bounce-slow">
-                <div className="text-6xl md:text-7xl leading-none filter drop-shadow-sm transform transition-transform duration-300 group-hover:scale-110">
-                    {data.img}
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn" onClick={onClose}>
+                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 relative" onClick={(e) => e.stopPropagation()}>
+                        <button onClick={onClose} className="absolute -top-3 -right-3 z-50 p-3 bg-red-100 rounded-full text-red-500 shadow-md hover:bg-red-500 hover:text-white transition-all transform hover:scale-110">
+                            <Icons.X size={24} strokeWidth={3} />
+                        </button>
+                        <h3 className="text-2xl font-bold text-center mb-2 text-gray-700">Practice Writing</h3>
+                        <p className="text-center text-gray-400 mb-6">Trace: <span className="text-orange-500 font-kaiti text-2xl mx-1">{char}</span></p>
+                        <div className="relative aspect-square w-full bg-orange-50/30 rounded-xl overflow-hidden cursor-crosshair touch-none select-none">
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+                                <span className="font-kaiti text-[200px] text-gray-200 opacity-50 select-none">{char}</span>
+                            </div>
+                            <canvas ref={canvasRef} className="w-full h-full relative z-10 touch-none" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={stopDrawing} onMouseLeave={stopDrawing} onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={stopDrawing} />
+                        </div>
+                        <div className="flex justify-center mt-6">
+                            <button onClick={clearCanvas} className="flex items-center gap-2 px-6 py-2 bg-orange-100 text-orange-600 rounded-full font-bold hover:bg-orange-200 transition-colors">
+                                <Icons.Eraser size={20} /> Clear Board
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-          </div>
-          
-          <div className="w-full bg-orange-50 rounded-xl p-3 text-center mt-2 flex flex-col items-center">
-            <h3 className="text-lg font-bold text-gray-800">{data.name}</h3>
-            <div className="flex items-center justify-center gap-2 mt-1 w-full relative">
-              <span className="text-teal-600 font-medium">{data.pinyin}</span>
-              <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSpeak(data.char + " " + data.name);
-                }}
-                className="p-1.5 rounded-full hover:bg-teal-100 text-teal-500 transition-colors"
-              >
-                <Volume2 size={16} />
-              </button>
-            </div>
-          </div>
-        </div>
+            );
+        };
 
-        {/* Back Side */}
-        <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-orange-50 to-white rounded-2xl shadow-lg border-2 border-orange-200 p-5 flex flex-col items-center justify-center">
-          <div className="absolute top-2 right-2">
-             {/* Practice Button (Only on back to avoid clutter) */}
-             <button 
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpenPractice(data.char);
-                }}
-                className="flex items-center gap-1 bg-white border border-orange-200 text-orange-500 px-3 py-1 rounded-full text-xs font-bold hover:bg-orange-500 hover:text-white transition-colors shadow-sm"
-              >
-                <PenTool size={12} /> 写 (Write)
-              </button>
-          </div>
+        const RadicalCard = ({ data, onSpeak, onOpenPractice }) => {
+            const [isFlipped, setIsFlipped] = useState(false);
 
-          <h4 className="text-xl font-bold text-orange-600 mb-1 mt-4">{data.meaning}</h4>
-          <p className="text-gray-500 text-sm mb-4">Meaning</p>
-          
-          <div className="w-full bg-white rounded-xl p-3 shadow-inner">
-            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Examples</p>
-            <div className="space-y-2">
-              {data.examples.map((ex, idx) => (
-                <div key={idx} className="flex items-center gap-2 border-b border-gray-100 last:border-0 pb-1 last:pb-0">
-                  <span className="w-2 h-2 rounded-full bg-teal-400"></span>
-                  <span className="font-kaiti text-lg text-gray-700">{ex.split(' ')[0]}</span>
-                  <span className="text-xs text-gray-500">{ex.split(' ')[1]}</span>
+            return (
+                <div className="group perspective h-72 w-full cursor-pointer relative">
+                    <div className={`relative h-full w-full transition-all duration-500 preserve-3d ${isFlipped ? 'rotate-y-180' : ''}`} onClick={() => setIsFlipped(!isFlipped)}>
+                        
+                        {/* Front */}
+                        <div className="absolute inset-0 backface-hidden bg-white rounded-2xl shadow-lg border-2 border-orange-100 hover:border-orange-300 p-4 flex flex-col items-center justify-between overflow-hidden">
+                            <div className="absolute top-0 right-0 p-2 opacity-50">
+                                <Icons.RotateCw size={16} className="text-gray-400" />
+                            </div>
+                            <div className="flex-1 flex flex-row items-center justify-center w-full gap-4 md:gap-8 px-2">
+                                <div className="text-7xl font-kaiti text-orange-500 font-bold drop-shadow-sm leading-none">{data.char}</div>
+                                <div className="w-0.5 h-16 bg-orange-100 rounded-full"></div>
+                                <div className="animate-bounce-slow">
+                                    <div className="text-6xl md:text-7xl leading-none filter drop-shadow-sm transform transition-transform duration-300 group-hover:scale-110">{data.img}</div>
+                                </div>
+                            </div>
+                            <div className="w-full bg-orange-50 rounded-xl p-3 text-center mt-2 flex flex-col items-center">
+                                <h3 className="text-lg font-bold text-gray-800">{data.name}</h3>
+                                <div className="flex items-center justify-center gap-2 mt-1 w-full relative">
+                                    <span className="text-teal-600 font-medium">{data.pinyin}</span>
+                                    <button onClick={(e) => { e.stopPropagation(); onSpeak(data.char + " " + data.name); }} className="p-1.5 rounded-full hover:bg-teal-100 text-teal-500 transition-colors">
+                                        <Icons.Volume2 size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Back */}
+                        <div className="absolute inset-0 backface-hidden rotate-y-180 bg-gradient-to-br from-orange-50 to-white rounded-2xl shadow-lg border-2 border-orange-200 p-5 flex flex-col items-center justify-center">
+                            <div className="absolute top-2 right-2 flex gap-2">
+                                <button onClick={(e) => { e.stopPropagation(); onOpenPractice(data.char); }} className="flex items-center gap-1 bg-white border border-orange-200 text-orange-500 px-3 py-1 rounded-full text-xs font-bold hover:bg-orange-500 hover:text-white transition-colors shadow-sm">
+                                    <Icons.PenTool size={12} /> 写
+                                </button>
+                            </div>
+                            <h4 className="text-xl font-bold text-orange-600 mb-1 mt-4">{data.meaning}</h4>
+                            <p className="text-gray-500 text-sm mb-4">Meaning</p>
+                            <div className="w-full bg-white rounded-xl p-3 shadow-inner">
+                                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">Examples</p>
+                                <div className="space-y-2">
+                                    {data.examples.map((ex, idx) => (
+                                        <div key={idx} className="flex items-center gap-2 border-b border-gray-100 last:border-0 pb-1 last:pb-0">
+                                            <span className="w-2 h-2 rounded-full bg-teal-400"></span>
+                                            <span className="font-kaiti text-lg text-gray-700">{ex.split(' ')[0]}</span>
+                                            <span className="text-xs text-gray-500">{ex.split(' ')[1]}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <p className="text-xs text-center text-gray-400 mt-4">(Click to flip back)</p>
+                        </div>
+                    </div>
                 </div>
-              ))}
-            </div>
-          </div>
-          <p className="text-xs text-center text-gray-400 mt-4">(Click to flip back)</p>
-        </div>
-      </div>
-    </div>
-  );
-};
+            );
+        };
 
-// Collapsible Chapter Component
-const ChapterGroup = ({ title, radicals, onSpeak, onOpenPractice, isOpen, onToggle }) => {
-  return (
-    <div className="bg-white/60 rounded-3xl overflow-hidden shadow-sm border border-white/60 backdrop-blur-sm transition-all duration-300 mb-6">
-      <button 
-        onClick={onToggle}
-        className="w-full flex items-center justify-between p-5 hover:bg-white/50 transition-colors cursor-pointer text-left focus:outline-none"
-      >
-        <h2 className="text-xl font-bold text-indigo-800 flex items-center gap-3">
-          <span className="bg-indigo-100 text-indigo-600 p-2 rounded-lg text-sm shadow-sm">
-            {title.includes("Search") ? "🔍" : "📖 Chapter"}
-          </span>
-          {title}
-        </h2>
-        <div className={`p-2 rounded-full bg-indigo-50 text-indigo-400 transition-all duration-300 ${isOpen ? 'rotate-180 bg-indigo-100 text-indigo-600' : ''}`}>
-          <ChevronDown size={20} />
-        </div>
-      </button>
-      
-      <div 
-        className={`transition-all duration-500 ease-in-out overflow-hidden ${isOpen ? 'max-h-[3000px] opacity-100' : 'max-h-0 opacity-0'}`}
-      >
-        <div className="p-6 pt-0 border-t border-indigo-50/50">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
-            {radicals.map((radical, idx) => (
-              <RadicalCard key={idx} data={radical} onSpeak={onSpeak} onOpenPractice={onOpenPractice} />
-            ))}
-          </div>
-          {radicals.length === 0 && (
-            <div className="text-center text-gray-400 py-10">No radicals found matching your search.</div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
+        const ChapterGroup = ({ title, radicals, onSpeak, onOpenPractice, isOpen, onToggle }) => {
+            return (
+                <div className="bg-white/60 rounded-3xl overflow-hidden shadow-sm border border-white/60 backdrop-blur-sm transition-all duration-300 mb-6">
+                    <button onClick={onToggle} className="w-full flex items-center justify-between p-5 hover:bg-white/50 transition-colors cursor-pointer text-left focus:outline-none">
+                        <h2 className="text-xl font-bold text-indigo-800 flex items-center gap-3">
+                            <span className="bg-indigo-100 text-indigo-600 p-2 rounded-lg text-sm shadow-sm">{title.includes("Search") ? "🔍" : "📖 Chapter"}</span>
+                            {title}
+                        </h2>
+                        <div className={`p-2 rounded-full bg-indigo-50 text-indigo-400 transition-all duration-300 ${isOpen ? 'rotate-180 bg-indigo-100 text-indigo-600' : ''}`}>
+                            <Icons.ChevronDown size={20} />
+                        </div>
+                    </button>
+                    <div className={`transition-all duration-500 ease-in-out overflow-hidden ${isOpen ? 'max-h-[3000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                        <div className="p-6 pt-0 border-t border-indigo-50/50">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+                                {radicals.map((radical, idx) => (
+                                    <RadicalCard key={idx} data={radical} onSpeak={onSpeak} onOpenPractice={onOpenPractice} />
+                                ))}
+                            </div>
+                            {radicals.length === 0 && <div className="text-center text-gray-400 py-10">No radicals found matching your search.</div>}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
-const QuizMode = ({ allRadicals }) => {
-  const [currentQuestion, setCurrentQuestion] = useState(null);
-  const [score, setScore] = useState(0);
-  const [feedback, setFeedback] = useState(null);
+        const QuizMode = ({ allRadicals }) => {
+            const [currentQuestion, setCurrentQuestion] = useState(null);
+            const [score, setScore] = useState(0);
+            const [feedback, setFeedback] = useState(null);
 
-  const generateQuestion = () => {
-    const randomRadical = allRadicals[Math.floor(Math.random() * allRadicals.length)];
-    const options = [randomRadical];
-    while (options.length < 4) {
-      const r = allRadicals[Math.floor(Math.random() * allRadicals.length)];
-      if (!options.find(o => o.char === r.char)) {
-        options.push(r);
-      }
-    }
-    const shuffled = options.sort(() => Math.random() - 0.5);
-    
-    setCurrentQuestion({
-      target: randomRadical,
-      options: shuffled
-    });
-    setFeedback(null);
-  };
+            const generateQuestion = () => {
+                const randomRadical = allRadicals[Math.floor(Math.random() * allRadicals.length)];
+                const options = [randomRadical];
+                while (options.length < 4) {
+                    const r = allRadicals[Math.floor(Math.random() * allRadicals.length)];
+                    if (!options.find(o => o.char === r.char)) options.push(r);
+                }
+                setCurrentQuestion({ target: randomRadical, options: options.sort(() => Math.random() - 0.5) });
+                setFeedback(null);
+            };
 
-  useEffect(() => {
-    generateQuestion();
-  }, []);
+            useEffect(() => { generateQuestion(); }, []);
 
-  const handleAnswer = (selected) => {
-    if (selected.char === currentQuestion.target.char) {
-      setScore(score + 10);
-      setFeedback("correct");
-      setTimeout(generateQuestion, 1500);
-    } else {
-      setFeedback("wrong");
-    }
-  };
+            const handleAnswer = (selected) => {
+                if (selected.char === currentQuestion.target.char) {
+                    setScore(score + 10);
+                    setFeedback("correct");
+                    setTimeout(generateQuestion, 1500);
+                } else {
+                    setFeedback("wrong");
+                }
+            };
 
-  if (!currentQuestion) return <div className="p-8 text-center text-gray-500">Loading Quiz...</div>;
+            if (!currentQuestion) return <div className="p-8 text-center text-gray-500">Loading Quiz...</div>;
 
-  return (
-    <div className="max-w-2xl mx-auto p-8 bg-white/80 backdrop-blur rounded-3xl shadow-xl mt-8 border border-white">
-      <div className="flex justify-between items-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-          <Brain className="text-purple-500" />
-          Radical Challenge!
-        </h2>
-        <div className="bg-yellow-100 px-4 py-2 rounded-full flex items-center gap-2 text-yellow-700 font-bold shadow-sm">
-          <Trophy size={20} />
-          {score} pts
-        </div>
-      </div>
+            return (
+                <div className="max-w-2xl mx-auto p-8 bg-white/80 backdrop-blur rounded-3xl shadow-xl mt-8 border border-white">
+                    <div className="flex justify-between items-center mb-8">
+                        <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2"><Icons.Brain className="text-purple-500" /> Radical Challenge!</h2>
+                        <div className="bg-yellow-100 px-4 py-2 rounded-full flex items-center gap-2 text-yellow-700 font-bold shadow-sm"><Icons.Trophy size={20} /> {score} pts</div>
+                    </div>
+                    <div className="text-center mb-10 p-6 bg-indigo-50 rounded-2xl">
+                        <p className="text-gray-500 mb-3 uppercase tracking-wide text-sm font-bold">Which radical means...</p>
+                        <div className="text-4xl font-bold text-indigo-600 animate-pulse flex items-center justify-center gap-3">
+                            <span>{currentQuestion.target.meaning}</span><span>{currentQuestion.target.img}</span>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        {currentQuestion.options.map((opt, idx) => (
+                            <button key={idx} onClick={() => handleAnswer(opt)} disabled={feedback === "correct"} className={`p-6 rounded-2xl text-5xl font-kaiti transition-all transform hover:scale-105 active:scale-95 shadow-sm ${feedback === "correct" && opt.char === currentQuestion.target.char ? "bg-green-100 border-2 border-green-500 text-green-700 shadow-green-200" : feedback === "wrong" ? "bg-gray-50 border-2 border-gray-200 hover:border-purple-300 opacity-50" : "bg-white border-2 border-gray-100 hover:border-purple-400 hover:shadow-lg hover:bg-purple-50"}`}>
+                                {opt.char}
+                            </button>
+                        ))}
+                    </div>
+                    {feedback && <div className={`mt-6 text-center font-bold text-xl animate-bounce ${feedback === "correct" ? "text-green-500" : "text-red-500"}`}>{feedback === "correct" ? "🎉 Great Job! Next question..." : "Try again! 💪"}</div>}
+                </div>
+            );
+        };
 
-      <div className="text-center mb-10 p-6 bg-indigo-50 rounded-2xl">
-        <p className="text-gray-500 mb-3 uppercase tracking-wide text-sm font-bold">Which radical means...</p>
-        <div className="text-4xl font-bold text-indigo-600 animate-pulse flex items-center justify-center gap-3">
-          <span>{currentQuestion.target.meaning}</span>
-          <span>{currentQuestion.target.img}</span>
-        </div>
-      </div>
+        const App = () => {
+            const [activeTab, setActiveTab] = useState("1A");
+            const [searchQuery, setSearchQuery] = useState("");
+            const [expandedChapters, setExpandedChapters] = useState({});
+            const [practiceChar, setPracticeChar] = useState(null);
 
-      <div className="grid grid-cols-2 gap-4">
-        {currentQuestion.options.map((opt, idx) => (
-          <button
-            key={idx}
-            onClick={() => handleAnswer(opt)}
-            disabled={feedback === "correct"}
-            className={`p-6 rounded-2xl text-5xl font-kaiti transition-all transform hover:scale-105 active:scale-95 shadow-sm
-              ${feedback === "correct" && opt.char === currentQuestion.target.char 
-                ? "bg-green-100 border-2 border-green-500 text-green-700 shadow-green-200" 
-                : feedback === "wrong" 
-                  ? "bg-gray-50 border-2 border-gray-200 hover:border-purple-300 opacity-50" 
-                  : "bg-white border-2 border-gray-100 hover:border-purple-400 hover:shadow-lg hover:bg-purple-50"
-              }
-            `}
-          >
-            {opt.char}
-          </button>
-        ))}
-      </div>
+            useEffect(() => {
+                if (activeTab !== "QUIZ") {
+                    const chapters = Object.keys(SYLLABUS_DATA[activeTab] || {});
+                    if (chapters.length > 0) setExpandedChapters({ [chapters[0]]: true });
+                }
+            }, [activeTab]);
 
-      {feedback && (
-        <div className={`mt-6 text-center font-bold text-xl animate-bounce ${feedback === "correct" ? "text-green-500" : "text-red-500"}`}>
-          {feedback === "correct" ? "🎉 Great Job! Next question..." : "Try again! 💪"}
-        </div>
-      )}
-    </div>
-  );
-};
+            const toggleChapter = (key) => setExpandedChapters(prev => ({ ...prev, [key]: !prev[key] }));
+            const toggleAll = (open) => {
+                const chapters = Object.keys(SYLLABUS_DATA[activeTab] || {});
+                const next = {};
+                chapters.forEach(c => next[c] = open);
+                setExpandedChapters(next);
+            };
 
-export default function App() {
-  const [activeTab, setActiveTab] = useState("1A"); 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [expandedChapters, setExpandedChapters] = useState({});
-  const [practiceChar, setPracticeChar] = useState(null);
+            const getAllRadicals = () => {
+                let all = [];
+                Object.values(SYLLABUS_DATA).forEach(b => Object.values(b).forEach(l => all = [...all, ...l]));
+                return all;
+            };
 
-  // Initialize: Only FIRST chapter is expanded
-  useEffect(() => {
-    if (activeTab !== "QUIZ") {
-      const chapters = Object.keys(SYLLABUS_DATA[activeTab] || {});
-      const initialExpandedState = {};
-      if (chapters.length > 0) {
-        initialExpandedState[chapters[0]] = true; // Only first one true
-      }
-      setExpandedChapters(initialExpandedState);
-    }
-  }, [activeTab]);
+            const speak = (text) => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const u = new SpeechSynthesisUtterance(text);
+                    u.lang = 'zh-CN'; u.rate = 0.8;
+                    const v = window.speechSynthesis.getVoices().find(v => v.lang.includes('zh'));
+                    if (v) u.voice = v;
+                    window.speechSynthesis.speak(u);
+                }
+            };
 
-  const toggleChapter = (chapterKey) => {
-    setExpandedChapters(prev => ({
-      ...prev,
-      [chapterKey]: !prev[chapterKey]
-    }));
-  };
+            const renderContent = () => {
+                if (activeTab === "QUIZ") return <QuizMode allRadicals={getAllRadicals()} />;
+                let display = {}, isSearch = !!searchQuery;
+                if (isSearch) {
+                    const filtered = getAllRadicals().filter(i => i.name.includes(searchQuery) || i.char.includes(searchQuery) || i.pinyin.includes(searchQuery) || i.meaning.toLowerCase().includes(searchQuery.toLowerCase()));
+                    display = { "Search Results": filtered };
+                } else {
+                    display = SYLLABUS_DATA[activeTab];
+                }
+                
+                return (
+                    <div className="space-y-2 animate-fadeIn pb-12">
+                        {!isSearch && (
+                            <div className="flex justify-end gap-2 mb-4 px-2">
+                                <button onClick={() => toggleAll(true)} className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"><Icons.Maximize2 size={12} /> Expand All</button>
+                                <button onClick={() => toggleAll(false)} className="text-xs font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"><Icons.Minimize2 size={12} /> Collapse All</button>
+                            </div>
+                        )}
+                        {Object.entries(display).map(([sec, rads]) => (
+                            <ChapterGroup key={sec} title={sec} radicals={rads} onSpeak={speak} onOpenPractice={setPracticeChar} isOpen={isSearch ? true : !!expandedChapters[sec]} onToggle={() => toggleChapter(sec)} />
+                        ))}
+                    </div>
+                );
+            };
 
-  const toggleAll = (shouldExpand) => {
-    const chapters = Object.keys(SYLLABUS_DATA[activeTab] || {});
-    const newState = {};
-    chapters.forEach(ch => newState[ch] = shouldExpand);
-    setExpandedChapters(newState);
-  };
+            return (
+                <div className="min-h-screen bg-[#F0F4F8] font-sans selection:bg-purple-100">
+                    <WritingModal char={practiceChar} isOpen={!!practiceChar} onClose={() => setPracticeChar(null)} />
+                    
+                    <header className="bg-gradient-to-r from-[#6c5ce7] to-[#4ECDC4] text-white pb-20 pt-8 px-4 relative overflow-hidden shadow-lg">
+                        <div className="max-w-6xl mx-auto text-center relative z-10">
+                            <h1 className="text-4xl md:text-5xl font-bold mb-2 tracking-tight drop-shadow-md">🌟 汉字部首乐园</h1>
+                            <p className="text-xl md:text-2xl text-white/90 font-light drop-shadow-sm">Chinese Radicals Fun Park</p>
+                            <div className="mt-8 flex justify-center">
+                                <div className="bg-white/20 p-1.5 rounded-full flex backdrop-blur-md border border-white/20 shadow-xl">
+                                    <button onClick={() => setActiveTab("QUIZ")} className={`px-8 py-2.5 rounded-full font-bold transition-all flex items-center gap-2 ${activeTab === "QUIZ" ? "bg-white text-purple-600 shadow-lg scale-105" : "text-white hover:bg-white/10"}`}><Icons.Trophy size={18} /> Challenge Mode</button>
+                                    <button onClick={() => setActiveTab("1A")} className={`px-8 py-2.5 rounded-full font-bold transition-all flex items-center gap-2 ${activeTab !== "QUIZ" ? "bg-white text-teal-600 shadow-lg scale-105" : "text-white hover:bg-white/10"}`}><Icons.BookOpen size={18} /> Study Mode</button>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
 
-  const getAllRadicals = () => {
-    let all = [];
-    Object.values(SYLLABUS_DATA).forEach(book => {
-      Object.values(book).forEach(chapterList => {
-        all = [...all, ...chapterList];
-      });
-    });
-    return all;
-  };
+                    <main className="max-w-6xl mx-auto -mt-8 px-4 relative z-20">
+                        {activeTab !== "QUIZ" && (
+                            <div className="bg-white rounded-2xl p-4 shadow-xl mb-8 flex flex-col md:flex-row items-center justify-between gap-4 border border-gray-100">
+                                <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 hide-scrollbar px-1">
+                                    {["1A", "1B", "2A", "2B"].map(book => (
+                                        <button key={book} onClick={() => { setActiveTab(book); setSearchQuery(""); }} className={`px-6 py-2.5 rounded-xl font-bold transition-all whitespace-nowrap border-2 ${activeTab === book ? "bg-purple-50 text-purple-600 border-purple-200 shadow-sm transform scale-105" : "bg-transparent text-gray-500 border-transparent hover:bg-gray-50"}`}>Book {book}</button>
+                                    ))}
+                                </div>
+                                <div className="relative w-full md:w-80 group">
+                                    <Icons.Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-teal-500 transition-colors" size={20} />
+                                    <input type="text" placeholder="Search (e.g. water, 氵, river)..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-teal-100 focus:border-teal-400 focus:bg-white transition-all shadow-inner" />
+                                </div>
+                            </div>
+                        )}
+                        {renderContent()}
+                    </main>
 
-  const speak = (text) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'zh-CN';
-      utterance.rate = 0.8; 
-      const voices = window.speechSynthesis.getVoices();
-      const chineseVoice = voices.find(v => v.lang.includes('zh'));
-      if (chineseVoice) utterance.voice = chineseVoice;
-      window.speechSynthesis.speak(utterance);
-    }
-  };
+                    <footer className="bg-white border-t border-gray-200 py-10 text-center text-gray-500 text-sm mt-auto">
+                        <p className="font-medium text-gray-600">Curated for Singapore Primary 1 & 2 • Based on Huanle Huoban Curriculum</p>
+                        <p className="mt-2 text-xs text-gray-400 flex items-center justify-center gap-1"><Icons.RotateCw size={12} /> Click cards to flip • <Icons.PenTool size={12} /> to Practice</p>
+                    </footer>
+                </div>
+            );
+        };
 
-  const renderContent = () => {
-    if (activeTab === "QUIZ") {
-      return <QuizMode allRadicals={getAllRadicals()} />;
-    }
-
-    let displayData = {};
-    let isSearchMode = !!searchQuery;
-
-    if (isSearchMode) {
-      const filtered = getAllRadicals().filter(item => 
-        item.name.includes(searchQuery) || 
-        item.char.includes(searchQuery) ||
-        item.pinyin.includes(searchQuery) ||
-        item.meaning.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      displayData = { "Search Results": filtered };
-    } else {
-      displayData = SYLLABUS_DATA[activeTab];
-    }
-
-    return (
-      <div className="space-y-2 animate-fadeIn pb-12">
-        {/* Global Expand/Collapse Controls for Book View */}
-        {!isSearchMode && (
-          <div className="flex justify-end gap-2 mb-4 px-2">
-            <button 
-              onClick={() => toggleAll(true)}
-              className="text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
-            >
-              <Maximize2 size={12} /> Expand All
-            </button>
-            <button 
-              onClick={() => toggleAll(false)}
-              className="text-xs font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"
-            >
-              <Minimize2 size={12} /> Collapse All
-            </button>
-          </div>
-        )}
-
-        {Object.entries(displayData).map(([section, radicals]) => (
-          <ChapterGroup 
-            key={section} 
-            title={section} 
-            radicals={radicals} 
-            onSpeak={speak}
-            onOpenPractice={setPracticeChar}
-            isOpen={isSearchMode ? true : !!expandedChapters[section]}
-            onToggle={() => toggleChapter(section)}
-          />
-        ))}
-      </div>
-    );
-  };
-
-  return (
-    <div className="min-h-screen bg-[#F0F4F8] font-sans selection:bg-purple-100">
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+XiaoWei&display=swap');
-        
-        .font-kaiti {
-          font-family: 'ZCOOL XiaoWei', 'KaiTi', serif;
-        }
-        
-        .perspective {
-          perspective: 1000px;
-        }
-        
-        .preserve-3d {
-          transform-style: preserve-3d;
-        }
-        
-        .backface-hidden {
-          backface-visibility: hidden;
-        }
-        
-        .rotate-y-180 {
-          transform: rotateY(180deg);
-        }
-
-        .animate-fadeIn {
-          animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Float Animation */
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
-        }
-        
-        .animate-bounce-slow {
-          animation: bounce-slow 3s infinite ease-in-out;
-        }
-
-        /* Hide scrollbar for tab navigation */
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
-
-      {/* Writing Practice Modal */}
-      <WritingModal 
-        char={practiceChar} 
-        isOpen={!!practiceChar} 
-        onClose={() => setPracticeChar(null)} 
-      />
-
-      {/* Header */}
-      <header className="bg-gradient-to-r from-[#6c5ce7] to-[#4ECDC4] text-white pb-20 pt-8 px-4 relative overflow-hidden shadow-lg">
-        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-          <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full mix-blend-overlay"></div>
-          <div className="absolute bottom-10 right-20 w-32 h-32 bg-white rounded-full mix-blend-overlay"></div>
-          <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-purple-500 rounded-full mix-blend-overlay filter blur-3xl"></div>
-        </div>
-        
-        <div className="max-w-6xl mx-auto text-center relative z-10">
-          <h1 className="text-4xl md:text-5xl font-bold mb-2 tracking-tight drop-shadow-md">
-            🌟 汉字部首乐园
-          </h1>
-          <p className="text-xl md:text-2xl text-white/90 font-light drop-shadow-sm">
-            Chinese Radicals Fun Park
-          </p>
-          <div className="mt-8 flex justify-center">
-            <div className="bg-white/20 p-1.5 rounded-full flex backdrop-blur-md border border-white/20 shadow-xl">
-              <button 
-                onClick={() => setActiveTab("QUIZ")}
-                className={`px-8 py-2.5 rounded-full font-bold transition-all flex items-center gap-2 ${activeTab === "QUIZ" ? "bg-white text-purple-600 shadow-lg scale-105" : "text-white hover:bg-white/10"}`}
-              >
-                <Trophy size={18} />
-                Challenge Mode
-              </button>
-              <button 
-                onClick={() => setActiveTab("1A")}
-                className={`px-8 py-2.5 rounded-full font-bold transition-all flex items-center gap-2 ${activeTab !== "QUIZ" ? "bg-white text-teal-600 shadow-lg scale-105" : "text-white hover:bg-white/10"}`}
-              >
-                <BookOpen size={18} />
-                Study Mode
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Container */}
-      <main className="max-w-6xl mx-auto -mt-8 px-4 relative z-20">
-        
-        {/* Navigation & Search Bar */}
-        {activeTab !== "QUIZ" && (
-          <div className="bg-white rounded-2xl p-4 shadow-xl mb-8 flex flex-col md:flex-row items-center justify-between gap-4 border border-gray-100">
-            {/* Book Tabs */}
-            <div className="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 hide-scrollbar px-1">
-              {["1A", "1B", "2A", "2B"].map((book) => (
-                <button
-                  key={book}
-                  onClick={() => {
-                    setActiveTab(book);
-                    setSearchQuery("");
-                  }}
-                  className={`px-6 py-2.5 rounded-xl font-bold transition-all whitespace-nowrap border-2
-                    ${activeTab === book 
-                      ? "bg-purple-50 text-purple-600 border-purple-200 shadow-sm transform scale-105" 
-                      : "bg-transparent text-gray-500 border-transparent hover:bg-gray-50"
-                    }`}
-                >
-                  Book {book}
-                </button>
-              ))}
-            </div>
-
-            {/* Search Input */}
-            <div className="relative w-full md:w-80 group">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-focus-within:text-teal-500 transition-colors" size={20} />
-              <input 
-                type="text" 
-                placeholder="Search (e.g. water, 氵, river)..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border-2 border-gray-100 rounded-xl focus:outline-none focus:ring-4 focus:ring-teal-100 focus:border-teal-400 focus:bg-white transition-all shadow-inner"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Dynamic Content Area */}
-        {renderContent()}
-
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-10 text-center text-gray-500 text-sm mt-auto">
-        <p className="font-medium text-gray-600">Curated for Singapore Primary 1 & 2 • Based on Huanle Huoban Curriculum</p>
-        <p className="mt-2 text-xs text-gray-400 flex items-center justify-center gap-1">
-          <RotateCw size={12} />
-          Click cards to flip • <PenTool size={12} /> to Practice
-        </p>
-      </footer>
-    </div>
-  );
-}
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
